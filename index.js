@@ -2,18 +2,18 @@ const express = require('express');
 const axios = require('axios');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = 3000;
 
-// Use the provided Pinterest API endpoint
-const baseURL = 'https://for-devs.onrender.com/api/pin';
-// Your hardcoded API key
+// Pinterest API key
 const pinterestApiKey = 'r-18a0bdd5bd3b6d656fba9066';
+const baseURL = 'https://for-devs.onrender.com/api/pin';
 
-app.get('/Pinterest', async (req, res) => {
-    const { quary: query } = req.query;
+// Endpoint to fetch Pinterest data
+app.get('/pinterest', async (req, res) => {
+    const query = req.query.query;
 
     if (!query) {
-        return res.status(400).json({ error: 'Search query (quary) is required' });
+        return res.status(400).json({ error: 'Query parameter is required' });
     }
 
     try {
@@ -24,15 +24,16 @@ app.get('/Pinterest', async (req, res) => {
             },
             headers: {
                 'accept': '*/*',
-            },
+            }
         });
 
         res.json(response.data);
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while fetching data' });
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred while fetching Pinterest data' });
     }
 });
 
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`Server is running on http://localhost:${port}`);
 });
