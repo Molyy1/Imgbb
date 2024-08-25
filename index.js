@@ -5,7 +5,7 @@ const app = express();
 const port = 3000;
 
 // Pinterest API key
-const pinterestApiKey = 'r-18a0bdd5bd3b6d656fba9066';
+const pinterestApiKey = 'r-dd95304fa1b0aa6872a12f88';
 const baseURL = 'https://for-devs.onrender.com/api/pin';
 
 // Endpoint to fetch Pinterest data
