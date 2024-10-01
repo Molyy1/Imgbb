@@ -1,39 +1,45 @@
+
 const express = require('express');
-const axios = require('axios');
+const { pinterest } = require('globalsprak'); // Assuming you have a function like this
 
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3000;
 
-// Pinterest API key
-const pinterestApiKey = 'r-dd95304fa1b0aa6872a12f88';
-const baseURL = 'https://for-devs.onrender.com/api/pin';
-
-// Endpoint to fetch Pinterest data
+// Define the /pinterest endpoint
 app.get('/pinterest', async (req, res) => {
-    const query = req.query.query;
+  const queryString = req.url.split('?')[1]; // Extract everything after the '?'
+  
+  if (!queryString) {
+    return res.status(400).json({ error: 'Query and number of images are required' });
+  }
 
-    if (!query) {
-        return res.status(400).json({ error: 'Query parameter is required' });
-    }
+  // Separate the query and number from the URL
+  const match = queryString.match(/query=([^ ]+)(?: ([\-]?\d+))?/); 
+  if (!match) {
+    return res.status(400).json({ error: 'Invalid query format' });
+  }
 
-    try {
-        const response = await axios.get(baseURL, {
-            params: {
-                search: query,
-                apikey: pinterestApiKey
-            },
-            headers: {
-                'accept': '*/*',
-            }
-        });
+  const query = match[1]; // Extract the query term (e.g., 'cat')
+  let count = match[2] ? parseInt(match[2]) : 10; // Extract the count (default to 10 if not provided)
 
-        res.json(response.data);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'An error occurred while fetching Pinterest data' });
-    }
+  if (isNaN(count)) {
+    return res.status(400).json({ error: 'Invalid number for image count' });
+  }
+
+  // Ensure count is always positive
+  count = Math.abs(count);
+
+  try {
+    // Fetch data from the pinterest function with the query and count
+    const response = await pinterest(query, count); 
+    res.json(response);
+  } catch (error) {
+    console.error('Error fetching Pinterest data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
 });
